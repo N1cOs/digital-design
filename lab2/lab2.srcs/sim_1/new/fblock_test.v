@@ -19,43 +19,27 @@ module fblock_test;
         .y_o(result)
     );
     
-//    always #5 clk = !clk;
+    always #2 clk = !clk;
     
-//    always @(posedge clk) begin
-//        if(!start) begin
-//            a <= 8'd19;
-//            b <= 8'd23;
-//            start <= 1'b1;
-//        end
-//        else if(!busy) begin
-//            start <= 0;
-//            $display("Result is %d", result);
-//            #10 $stop;
-//        end
-//    end
+    always @(negedge busy) begin
+        if(result) begin
+            start <= 0;
+            $display("Result is %d", result);
+            #10 $stop;
+        end
+    end
     
     initial begin
         rst = 1'b1;
         clk = 1'b1;
-        #1
+        #2
         clk = 0;
-        rst = 1'b0;
-        
-        a = 8'd19;
-        b = 8'd23;
+        rst = 0;
+        #2
+        a = 8'd255;
+        b = 8'd255;
         start = 1'b1;
         clk = 1'b1;
-        #1
-        clk = 0;
-        #1
-        clk = 1'b1;
-        #1
-        clk = 0;
-        while(busy) begin
-            #5 clk = !clk;
-        end   
-        $display("Result is %d", result);
-        #10 $stop;
     end
     
 endmodule

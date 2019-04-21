@@ -46,7 +46,7 @@ module mult(
                     begin
                         if(end_step) begin
                             state <= IDLE;
-                            y_bo <= part_res;
+                            y_bo = part_res;
                         end
                         
                         part_res = part_res + shifted_part_sum;

@@ -46,7 +46,7 @@ module sqrt(
                             m <= m >> 2;
                         end
                         else begin
-                            y_o <= part_res;
+                            y_o = part_res;
                             state <= INIT;
                         end
                     end    
