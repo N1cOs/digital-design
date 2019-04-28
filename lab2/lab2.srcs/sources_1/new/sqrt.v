@@ -21,9 +21,7 @@ module sqrt(
     
     always @(posedge clk_i)
         if(rst_i) begin
-            m <= 17'h10000;
-            part_res <= 0;
-            temp <= 0;
+            y_o <= 0;
             state <= INIT;
         end 
         else begin
@@ -31,6 +29,8 @@ module sqrt(
                 INIT:
                     if(start_i) begin
                         a <= a_i;
+                        m <= 17'h10000;
+                        part_res <= 0;
                         state <= WORK;
                     end
                 WORK:
