@@ -29,7 +29,7 @@ module fblock(
     wire end_sqr, end_sqrt;
     
     sqr sqr_1(
-        .clk_i(clk_i),
+        .clk_i(!clk_i),
         .rst_i(rst_sqr),
         .start_i(start_sqr),
         .a_i(x_sqr),
@@ -38,7 +38,7 @@ module fblock(
     );
     
     sqrt sqrt_1(
-        .clk_i(clk_i),
+        .clk_i(!clk_i),
         .rst_i(rst_sqrt),
         .start_i(start_sqrt),
         .a_i(sum),
@@ -46,9 +46,7 @@ module fblock(
         .y_o(sqrt_result)
     );
     
-    assign busy_o = state != INIT;
-    assign end_sqr = !busy_sqr;
-    assign end_sqrt = !busy_sqrt;
+    assign busy_o = (state != INIT);
     
     
     always @(posedge clk_i)
@@ -75,40 +73,28 @@ module fblock(
                     if(!start_sqr) begin
                         x_sqr <= a;
                         start_sqr <= 1'b1;
+                    end else if(!busy_sqr) begin
+                        sum <= sum + sqr_result;
+                        start_sqr <= 0;
+                        state <= SQR_2;
                     end
                 SQR_2:
                     if(!start_sqr) begin
                         x_sqr <= b;
                         start_sqr <= 1'b1;
-                    end
-                SQRT:
-                    if(!start_sqrt) begin
-                        start_sqrt <= 1'b1;
-                    end                
-            endcase                         
-        end
-        
-    always @(negedge busy_sqr, negedge busy_sqrt)
-        begin
-            case(state)
-                SQR_1:
-                    if(start_sqr) begin
-                        sum <= sum + sqr_result;
-                        start_sqr <= 0;
-                        state <= SQR_2;
-                    end
-                 SQR_2:
-                    if(start_sqr) begin
+                    end else if(!busy_sqr) begin
                         sum <= sum + sqr_result;
                         start_sqr <= 0;
                         state <= SQRT; 
                     end
-                 SQRT:
-                    if (start_sqrt) begin
+                SQRT:
+                    if(!start_sqrt) begin
+                        start_sqrt <= 1'b1;
+                    end else if(!busy_sqrt) begin
                         y_o = sqrt_result;
                         start_sqrt <= 0;
-                        state <= INIT; 
-                    end      
-            endcase 
-        end    
+                        state <= INIT;
+                    end              
+            endcase                         
+        end 
 endmodule
