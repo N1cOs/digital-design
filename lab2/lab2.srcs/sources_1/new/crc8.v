@@ -13,7 +13,7 @@ module crc8(
     localparam WAIT_NUMBER = 2'd2;
     
     localparam POLY = 8'hd1;
-    localparam ITER_AMOUNT = 9'd10;
+    localparam ITER_AMOUNT = 9'd255;
     
     reg [7:0] value, temp, counter;
     reg [8:0] a;

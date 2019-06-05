@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 
+//For proper testing, change ITER_AMOUNT parameter in crc8 to 10
 module crc8_test;
     reg clk, rst, start;
     reg [8:0] a;
