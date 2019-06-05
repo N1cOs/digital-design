@@ -24,7 +24,7 @@ module fblock_test;
         .y_o(result)
     );
     
-    always #2 clk = !clk;
+    always #10 clk = !clk;
     
     always @(negedge busy) begin
         if (test_number < 10) begin
@@ -39,7 +39,7 @@ module fblock_test;
             if (test_number == 10) begin
                 a = 0;
                 b = 0;
-                #10 $stop;
+                #100 $stop;
             end else begin
                 a = test_data_a[test_number];
                 b = test_data_b[test_number];
@@ -65,10 +65,10 @@ module fblock_test;
         
         rst = 1'b1;
         clk = 1'b1;
-        #2
+        #10
         clk = 0;
         rst = 0;
-        #2
+        #10
         
         a = test_data_a[0];
         b = test_data_b[0];

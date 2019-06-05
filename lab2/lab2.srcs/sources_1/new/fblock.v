@@ -48,7 +48,6 @@ module fblock(
     
     assign busy_o = (state != INIT);
     
-    
     always @(posedge clk_i)
         if(rst_i) begin
             y_o <= 0;
