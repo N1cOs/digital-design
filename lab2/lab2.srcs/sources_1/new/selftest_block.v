@@ -14,13 +14,14 @@ module selftest_block(
     
     localparam INIT_A = 8'd19;
     localparam INIT_B = 8'd23;
+    localparam ITER_AMOUNT = 9'd256;
     
     localparam IDLE = 3'd0;
     localparam MODE = 3'd1;
     localparam USER_INPUT = 3'd2;
     localparam TEST_INIT = 3'd3;
     localparam GENERATING = 3'd4;
-    localparam FBLOCK = 3'd5;
+    localparam FUNC = 3'd5;
     localparam CRC = 3'd6;
     
     reg [2:0] state;
@@ -28,8 +29,11 @@ module selftest_block(
     reg rst_fblock, rst_lfsr_a, rst_lfsr_b, rst_crc8;
     reg start_fblock, start_lfsr_a, start_lfsr_b, start_crc8;
     
-    reg [8:0] result_fblock;
-    reg [7:0] result_lfsr_a, result_lfsr_b, result_crc8, a, b, iter_c;
+    reg [8:0] input_crc8, iter_c;
+    reg [7:0] a, b;
+    
+    wire [8:0] result_fblock;
+    wire [7:0] result_lfsr_a, result_lfsr_b, result_crc8;
      
     wire busy_fblock, busy_lfsr_a, busy_lfsr_b, busy_crc8;
     
@@ -66,7 +70,7 @@ module selftest_block(
         .clk_i(!clk_i),
         .rst_i(rst_crc8),
         .start_i(start_crc8),
-        .a_i(result_fblock),
+        .a_i(input_crc8),
         .busy_o(busy_crc8),
         .y_o(result_crc8)
     );
@@ -82,6 +86,8 @@ module selftest_block(
             rst_lfsr_a <= 1;
             rst_lfsr_b <= 1;
             rst_crc8 <= 1;
+            start_fblock <= 0;
+            start_crc8 <= 0;
             state <= IDLE;
         end
         else
@@ -106,44 +112,46 @@ module selftest_block(
                          state <= USER_INPUT;
                     end
                 TEST_INIT:
-                    begin
+                    if (iter_c != ITER_AMOUNT) begin
                         start_lfsr_a <= 1;
                         start_lfsr_b <= 1;
                         state <= GENERATING; 
+                    end
+                    else begin
+                        y_o = result_crc8;
+                        counter_o = counter_o + 1;
+                        state <= IDLE;
                     end
                 GENERATING:
                     if (!busy_lfsr_a && !busy_lfsr_b) begin
                         start_lfsr_a <= 0; 
                         start_lfsr_b <= 0;
-                        state <= FBLOCK; 
+                        
+                        a <= result_lfsr_a;
+                        b <= result_lfsr_b;
+                        state <= FUNC; 
                     end
-                FBLOCK:
+                FUNC:
                     if(!start_fblock)
                         start_fblock <= 1;
                     else if(!busy_fblock) begin
                         start_fblock <= 0;
+                        input_crc8 <= result_fblock;
                         state <= CRC; 
                     end
                 CRC:
-                    if(iter_c != 255) begin
-                        if(!start_crc8)
-                            start_crc8 <= 1;
-                        else if(!busy_crc8) begin
-                             iter_c <= iter_c + 1;
-                             start_crc8 <= 0;
-                             state <= TEST_INIT;
-                        end
-                    end
-                    else begin 
-                        y_o <= result_crc8;
-                        counter_o <= counter_o + 1;
-                        state <= IDLE;
+                    if(!start_crc8)
+                        start_crc8 <= 1;
+                    else if(!busy_crc8) begin
+                        iter_c <= iter_c + 1;
+                        start_crc8 <= 0;
+                        state <= TEST_INIT;
                     end
                 USER_INPUT:
                     if(!start_fblock) begin
                          start_fblock <= 1;
                     end else if(!busy_fblock) begin
-                        y_o <= result_fblock;
+                        y_o = result_fblock;
                         state <= IDLE; 
                     end
             endcase

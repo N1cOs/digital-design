@@ -13,7 +13,7 @@ module crc8(
     localparam WAIT_NUMBER = 2'd2;
     
     localparam POLY = 8'hd1;
-    localparam ITER_AMOUNT = 9'd255;
+    localparam ITER_AMOUNT = 9'd256;
     
     reg [7:0] value, temp, counter;
     reg [8:0] a;
@@ -30,23 +30,24 @@ module crc8(
         else begin
             case(state)
                 IDLE:
-                    if(start_i) begin
+                    begin
                         value <= 8'hff;
                         counter <= 0;
                         state <= WAIT_NUMBER;
                     end
                 WAIT_NUMBER:
-                    if(start_i) begin
+                    if (start_i) begin
                         if (counter != ITER_AMOUNT) begin
                             bit_counter <= 4'hf;
                             a <= a_i;
                             counter <= counter + 1;
-                            state <= COMPUTE; 
+                            state <= COMPUTE;
+                            y_o = value;
                         end
                         else begin
-                            y_o <= value;
+                            y_o = value;
                             state <= IDLE; 
-                        end
+                        end 
                     end
                 COMPUTE:
                     if (bit_counter != 15) begin

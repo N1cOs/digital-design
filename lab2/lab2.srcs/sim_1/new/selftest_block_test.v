@@ -11,6 +11,7 @@ module selftest_block_test;
         .clk_i(clk),
         .rst_i(rst),
         .start_i(start),
+        .test(test),
         .a_i(a),
         .b_i(b),
         .busy_o(busy),
@@ -29,7 +30,7 @@ module selftest_block_test;
     end
     
     initial begin
-        test <= 1;
+        test = 1;
         
         rst = 1'b1;
         clk = 1'b1;
