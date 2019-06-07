@@ -5,7 +5,8 @@ module selftest_block_test;
     reg [7:0] a, b;
     
     wire busy;
-    wire [7:0] result, counter;
+    wire [8:0] result;
+    wire [6:0] counter;
     
     integer i;
     
@@ -25,7 +26,7 @@ module selftest_block_test;
     
     always @(negedge busy) begin
          if (start) begin
-            if (i < 9) begin
+            if (i < 1) begin
                 $display("Crc is %d", result);
                 $display("Counter is %d", counter);
                 i = i + 1;

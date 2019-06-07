@@ -8,7 +8,7 @@ module selftest_block(
     input [7:0] b_i,
     
     output busy_o,
-    output reg [7:0] counter_o,
+    output reg [6:0] counter_o,
     output reg [8:0] y_o
     );
     
