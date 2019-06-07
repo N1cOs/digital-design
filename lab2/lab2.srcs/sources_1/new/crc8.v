@@ -13,7 +13,7 @@ module crc8(
     localparam WAIT_NUMBER = 2'd2;
     
     localparam POLY = 8'hd1;
-    localparam ITER_AMOUNT = 9'd256;
+    localparam ITER_AMOUNT = 8'd255;
     
     reg [7:0] value, temp, counter;
     reg [8:0] a;
@@ -37,32 +37,32 @@ module crc8(
                     end
                 WAIT_NUMBER:
                     if (start_i) begin
-                        if (counter != ITER_AMOUNT) begin
-                            bit_counter <= 4'hf;
-                            a <= a_i;
-                            counter <= counter + 1;
-                            state <= COMPUTE;
-                            y_o = value;
-                        end
-                        else begin
-                            y_o = value;
-                            state <= IDLE; 
-                        end 
+                        bit_counter <= 4'hf;
+                        a <= a_i;
+                        state <= COMPUTE;
                     end
                 COMPUTE:
-                    if (bit_counter != 15) begin
-                        if (bit_counter < 8) begin
-                            temp = value & 8'h80;
-                            value <= temp ? (value << 1) ^ POLY : (value << 1);
-                            bit_counter <= bit_counter + 1;
-                        end
-                        else begin
-                            state <= WAIT_NUMBER;
-                        end
-                    end
-                    else begin
-                        value <= value ^ a;
-                        bit_counter <= 0;
+                    begin
+                        if (bit_counter != 15) begin
+                                if (bit_counter < 8) begin
+                                    temp = value & 8'h80;
+                                    value <= temp ? (value << 1) ^ POLY : (value << 1);
+                                    bit_counter <= bit_counter + 1;
+                                end
+                                else begin
+                                    counter = counter + 1;
+                                    if (counter == ITER_AMOUNT) begin
+                                        y_o = value;
+                                        state <= IDLE;
+                                    end
+                                    else
+                                        state <= WAIT_NUMBER;
+                                end
+                            end
+                            else begin
+                                value <= value ^ a;
+                                bit_counter <= 0;
+                            end
                     end
             endcase
         end

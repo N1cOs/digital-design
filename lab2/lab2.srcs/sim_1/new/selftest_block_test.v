@@ -7,6 +7,8 @@ module selftest_block_test;
     wire busy;
     wire [7:0] result, counter;
     
+    integer i;
+    
     selftest_block fblock1(
         .clk_i(clk),
         .rst_i(rst),
@@ -23,14 +25,19 @@ module selftest_block_test;
     
     always @(negedge busy) begin
          if (start) begin
-            $display("Crc is %d", result);
-            $display("Counter is %d", counter);
-            #10 $stop; 
+            if (i < 9) begin
+                $display("Crc is %d", result);
+                $display("Counter is %d", counter);
+                i = i + 1;
+            end
+            else
+                #100 $stop;
          end
     end
     
     initial begin
         test = 1;
+        i = 0;
         
         rst = 1'b1;
         clk = 1'b1;

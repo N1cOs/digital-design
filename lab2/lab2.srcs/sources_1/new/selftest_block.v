@@ -12,9 +12,9 @@ module selftest_block(
     output reg [8:0] y_o
     );
     
-    localparam INIT_A = 8'd19;
-    localparam INIT_B = 8'd23;
-    localparam ITER_AMOUNT = 9'd256;
+    localparam INIT_A = 8'd11;
+    localparam INIT_B = 8'd31;
+    localparam ITER_AMOUNT = 8'd255;
     
     localparam IDLE = 3'd0;
     localparam MODE = 3'd1;
@@ -29,8 +29,8 @@ module selftest_block(
     reg rst_fblock, rst_lfsr_a, rst_lfsr_b, rst_crc8;
     reg start_fblock, start_lfsr_a, start_lfsr_b, start_crc8;
     
-    reg [8:0] input_crc8, iter_c;
-    reg [7:0] a, b;
+    reg [8:0] input_crc8;
+    reg [7:0] a, b, iter_c;
     
     wire [8:0] result_fblock;
     wire [7:0] result_lfsr_a, result_lfsr_b, result_crc8;
