@@ -31,6 +31,8 @@ module selftest_block(
     
     reg [8:0] input_crc8;
     reg [7:0] a, b, iter_c;
+    reg [6:0] counter;
+    reg isTest;
     
     wire [8:0] result_fblock;
     wire [7:0] result_lfsr_a, result_lfsr_b, result_crc8;
@@ -81,6 +83,7 @@ module selftest_block(
         if(rst_i) begin
             y_o <= 0;
             counter_o <= 0;
+            counter <= 0;
             
             rst_fblock <= 1;
             rst_lfsr_a <= 1;
@@ -93,23 +96,29 @@ module selftest_block(
         else
             case(state)
                 IDLE:
-                    if(start_i) begin
-                        rst_fblock <= 0;
-                        rst_lfsr_a <= 0;
-                        rst_lfsr_b <= 0;
-                        rst_crc8 <= 0;
-                        
-                        a <= a_i;
-                        b <= b_i;
-                        state <= MODE;  
-                    end
-                MODE:
-                    if(test) begin
-                         iter_c <= 0;
-                         state <= TEST_INIT;
-                    end
-                    else begin
-                         state <= USER_INPUT;
+                    begin
+                        if (start_i || test) begin
+                            rst_fblock <= 0;
+                            rst_lfsr_a <= 0;
+                            rst_lfsr_b <= 0;
+                            rst_crc8 <= 0; 
+                        end
+                        if(start_i) begin
+                            a <= a_i;
+                            counter <= counter_o;
+                            counter_o <= 0;
+                            b <= b_i;
+                            state <= USER_INPUT;  
+                        end
+                        else if(test) begin
+                             isTest <= 1;
+                             state <= IDLE;
+                        end
+                        else if(!test && isTest) begin
+                             iter_c <= 0;
+                             isTest <= 0;
+                             state <= TEST_INIT;
+                        end
                     end
                 TEST_INIT:
                     if (iter_c != ITER_AMOUNT) begin
@@ -119,7 +128,8 @@ module selftest_block(
                     end
                     else begin
                         y_o = result_crc8;
-                        counter_o = counter_o + 1;
+                        counter = counter + 1;
+                        counter_o = counter;
                         state <= IDLE;
                     end
                 GENERATING:

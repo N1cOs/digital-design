@@ -25,7 +25,7 @@ module selftest_block_test;
     always #10 clk = !clk;
     
     always @(negedge busy) begin
-         if (start) begin
+         if (test) begin
             if (i < 1) begin
                 $display("Crc is %d", result);
                 $display("Counter is %d", counter);
@@ -37,7 +37,6 @@ module selftest_block_test;
     end
     
     initial begin
-        test = 1;
         i = 0;
         
         rst = 1'b1;
@@ -46,7 +45,7 @@ module selftest_block_test;
         clk = 0;
         rst = 0;
         #10
-        start = 1'b1;
+        test = 1;
         clk = 1'b1; 
     end
 endmodule
