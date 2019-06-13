@@ -38,7 +38,7 @@ module selftest_block(
     wire [7:0] result_lfsr_a, result_lfsr_b, result_crc8;
      
     wire busy_fblock, busy_lfsr_a, busy_lfsr_b, busy_crc8;
-    
+    reg [7:0] clk_counter;
     
     fblock fblock_1(
         .clk_i(!clk_i),
@@ -92,6 +92,7 @@ module selftest_block(
             start_fblock <= 0;
             start_crc8 <= 0;
             state <= IDLE;
+            clk_counter <= 0;
         end
         else
             case(state)
@@ -110,13 +111,15 @@ module selftest_block(
                             b <= b_i;
                             state <= USER_INPUT;  
                         end
-                        else if(test) begin
+                        else if(test && clk_counter < 64) begin
                              isTest <= 1;
                              state <= IDLE;
+                             clk_counter <= clk_counter + 1;
                         end
-                        else if(!test && isTest) begin
+                        else if(!test && isTest && clk_counter >= 64) begin
                              iter_c <= 0;
                              isTest <= 0;
+                             clk_counter <= 0;
                              state <= TEST_INIT;
                         end
                     end
